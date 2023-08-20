@@ -20,6 +20,12 @@ class Pan(games.Sprite):
     """
     image = games.load_image("pan.bmp")
 
+    """ Задание исходного значения уровня и установка частоты повышения уровня"""
+    game_level = 1
+    levelup_list = []
+    for i in range(0, 1000, 50):
+        levelup_list.append(i)
+
     def __init__(self):
         """ Initialize Pan object and create Text object for score. """
         super(Pan, self).__init__(image=Pan.image,
@@ -48,6 +54,27 @@ class Pan(games.Sprite):
             self.score.value += 10
             self.score.right = games.screen.width - 10
             pizza.handle_caught()
+            self.check_level()
+
+    def check_level(self):
+        """Проверка текущего количества очков на повышение уровня"""
+        if self.score.value in self.levelup_list:
+            self.level_up()
+
+    def level_up(self):
+        """Повышение уровня с выводом сообщения на экран."""
+        self.game_level += 1
+        level_up_message = games.Message(value="LEVEL " + str(self.game_level),
+                                         size=90,
+                                         color=color.red,
+                                         x=games.screen.width / 2,
+                                         y=games.screen.height / 2,
+                                         lifetime=1 * games.screen.fps,)
+        games.screen.add(level_up_message)
+        # Не уверен в корректности выбранной проверки, но работает
+        # иначе не получается вызвать метод увеличения скорости
+        for pizza in self.overlapping_sprites:
+            pizza.increase_speed()
 
 
 class Pizza(games.Sprite):
@@ -72,6 +99,10 @@ class Pizza(games.Sprite):
     def handle_caught(self):
         """ Destroy self if caught. """
         self.destroy()
+
+    def increase_speed(self):
+        """Увеличение скорости падения пиццы"""
+        self.speed += 1
 
     def end_game(self):
         """ End the game. """
