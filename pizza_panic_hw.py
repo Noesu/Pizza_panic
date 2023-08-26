@@ -23,8 +23,18 @@ class Pan(games.Sprite):
     """Задание исходного значения уровня и установка частоты повышения уровня"""
     game_level = 1
     levelup_list = []
-    for i in range(0, 1000, 50):
+    for i in range(0, 10000, 50):
         levelup_list.append(i)
+
+    """Формирование списка уровней с увеличением скорости пиццы"""
+    levels_with_pizza_speed_increase = []
+    for i in range(0, 100, 3):
+        levels_with_pizza_speed_increase.append(i)
+
+    """Формирование списка уровней с увеличением скорости шефа"""
+    levels_with_chef_speed_increase = []
+    for i in range(0, 100, 5):
+        levels_with_chef_speed_increase.append(i)
 
     def __init__(self):
         """ Initialize Pan object and create Text object for score. """
@@ -54,20 +64,22 @@ class Pan(games.Sprite):
             self.score.value += 10
             self.score.right = games.screen.width - 10
             pizza.handle_caught()
-            # Тут корявое обращение к методу другого класса
-            lvl = self.check_level()
-            if lvl == 1:
-                pizza.increase_speed()
+            self.check_level()
 
     def check_level(self):
         """Проверка текущего количества очков на повышение уровня"""
         if self.score.value in self.levelup_list:
             self.level_up()
-            return 1
 
     def level_up(self):
         """Повышение уровня с выводом сообщения на экран."""
         self.game_level += 1
+        # if self.game_level == 5:
+        #     Chef.dx = 5
+        if self.game_level in self.levels_with_pizza_speed_increase:
+            Pizza.increase_speed()
+        if self.game_level in self.levels_with_chef_speed_increase:
+            Chef.increase_speed()
         level_up_message = games.Message(value="LEVEL " + str(self.game_level),
                                          size=90,
                                          color=color.red,
@@ -82,13 +94,13 @@ class Pizza(games.Sprite):
     A pizza which falls to the ground.
     """
     image = games.load_image("pizza.bmp")
-    speed = 1
+    pizza_speed = 1
 
     def __init__(self, x, y=90):
         """ Initialize a Pizza object. """
         super(Pizza, self).__init__(image=Pizza.image,
                                     x=x, y=y,
-                                    dy=Pizza.speed)
+                                    dy=Pizza.pizza_speed)
 
     def update(self):
         """ Check if bottom edge has reached screen bottom. """
@@ -103,7 +115,7 @@ class Pizza(games.Sprite):
     @staticmethod
     def increase_speed():
         """Увеличение скорости падения пиццы"""
-        Pizza.speed += 1
+        Pizza.pizza_speed *= 1.3
 
     def end_game(self):
         """ End the game. """
@@ -122,13 +134,14 @@ class Chef(games.Sprite):
     A chef which moves left and right, dropping pizzas.
     """
     image = games.load_image("chef.bmp")
+    chef_speed = 2
 
-    def __init__(self, y=55, speed=2, odds_change=200):
+    def __init__(self, y=55, odds_change=200):
         """ Initialize the Chef object. """
         super(Chef, self).__init__(image=Chef.image,
                                    x=games.screen.width / 2,
                                    y=y,
-                                   dx=speed)
+                                   dx=Chef.chef_speed)
 
         self.odds_change = odds_change
         self.time_til_drop = 0
@@ -151,7 +164,13 @@ class Chef(games.Sprite):
             games.screen.add(new_pizza)
 
             # set buffer to approx 30% of pizza height, regardless of pizza speed
-            self.time_til_drop = int(new_pizza.height * 1.3 / Pizza.speed) + 1
+            self.time_til_drop = int(new_pizza.height * 1.3 / Pizza.pizza_speed) + 1
+
+    @staticmethod
+    def increase_speed():
+        """Увеличение скорости шефа"""
+        Chef.chef_speed += 1
+        Chef.dx = Chef.chef_speed
 
 
 def main():
