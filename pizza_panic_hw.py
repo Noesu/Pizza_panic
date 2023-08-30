@@ -36,6 +36,16 @@ class Pan(games.Sprite):
     for i in range(0, 100, 5):
         levels_with_chef_speed_increase.append(i)
 
+    """Формирование списка уровней с увеличением уровня сковороды"""
+    levels_with_pan_position_change = []
+    for i in range(0, 100, 5):
+        levels_with_pan_position_change.append(i)
+
+    """Формирование списка уровней с добавлением нового шефа"""
+    levels_with_adding_extra_chef = []
+    for i in range(0, 100, 5):
+        levels_with_adding_extra_chef.append(i)
+
     def __init__(self):
         """ Initialize Pan object and create Text object for score. """
         super(Pan, self).__init__(image=Pan.image,
@@ -74,12 +84,15 @@ class Pan(games.Sprite):
     def level_up(self):
         """Повышение уровня с выводом сообщения на экран."""
         self.game_level += 1
-        # if self.game_level == 5:
-        #     Chef.dx = 5
         if self.game_level in self.levels_with_pizza_speed_increase:
             Pizza.increase_speed()
         if self.game_level in self.levels_with_chef_speed_increase:
             Chef.increase_speed()
+        if self.game_level in self.levels_with_pan_position_change:
+            self.bottom -= 10
+        if self.game_level in self.levels_with_adding_extra_chef:
+            chef1 = Chef()
+            games.screen.add(chef1)
         level_up_message = games.Message(value="LEVEL " + str(self.game_level),
                                          size=90,
                                          color=color.red,
